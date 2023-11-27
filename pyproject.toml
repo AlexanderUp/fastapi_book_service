@@ -1,0 +1,23 @@
+[tool.black]
+skip-string-normalization=true
+skip-magic-trailing-comma=false
+line-length=89
+
+[tool.flake8]
+ignore=['D100', 'D101', 'D103', 'D104',]
+per-file-ignores = [
+]
+exclude=[
+    'man_tests_*',
+]
+max-cognitive-complexity=10
+max-line-length=89
+class_attributes_order=['field', 'meta_class', 'nested_class', 'magic_method', 'property_method', 'static_method', 'class_method', 'method', 'private_method']
+
+[tool.isort]
+known_first_party=[]
+profile='black'
+
+[tool.mypy]
+exclude=[]
+ignore_missing_imports=true
