@@ -22,6 +22,11 @@ class BookSchema(CommonIDNameModelSchema):
     publisher: 'PublisherSchema'
 
 
+class BookSchemaCreate(CommonIDNameModelSchema):
+    author_id: uuid.UUID
+    publisher_id: uuid.UUID
+
+
 class PublisherSchema(CommonIDNameModelSchema):
     model_config = ConfigDict(from_attributes=True)
 

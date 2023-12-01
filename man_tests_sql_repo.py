@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session, selectinload, joinedload
 
 from domain.book_repository import SQLBookRepository
 from domain.db_tables import Author, Base, Book, Publisher
-from domain.schemas import AuthorSchema, PublisherSchema
+from domain.schemas import AuthorSchema, BookSchema, BookSchemaCreate, PublisherSchema
 
 
 if __name__ == '__main__':
@@ -22,75 +22,37 @@ if __name__ == '__main__':
         pehov = AuthorSchema(name='Pehov')
         alpha_pub = PublisherSchema(name='alpha')
 
-        # print(type(orlov), orlov)
-        # print(type(pehov), pehov)
-        # print(type(alpha_pub), alpha_pub)
-
-        # orlov_db = Author(**orlov.model_dump())
-        # pehov_db = Author(**pehov.model_dump())
-        # alpha_pub_db = Publisher(**alpha_pub.model_dump())
-
-        # print(type(orlov_db), orlov_db)
-        # print(type(pehov_db), pehov_db)
-        # print(type(alpha_pub_db), alpha_pub_db)
-        
-        # session.add_all([orlov_db, pehov_db, alpha_pub_db])
-        # session.commit()
         orlov_db = repo.add_author(orlov)
         pehov_db = repo.add_author(pehov)
+        alpha_db = repo.add_publisher(alpha_pub)
 
         author_count = repo.author_count()
-        print('###')
-        print(author_count)
         assert author_count == 2
 
-        # session.refresh(orlov_db)
-        # session.refresh(pehov_db)
-        # session.refresh(alpha_pub_db)
+        publisher_count = repo.publisher_count()
+        assert publisher_count == 1
 
-        print(orlov_db)
-        print(pehov_db)
-        # print(alpha_pub_db)
+        road_to_ambeir = BookSchemaCreate(name='Road to Ambeir', author_id=orlov_db.id, publisher_id=alpha_db.id)
+        shadows_of_war = BookSchemaCreate(name='Shadows of War', author_id=orlov_db.id, publisher_id=alpha_db.id)
 
-        # road_to_ambeir = Book(id=uuid4(), name='Road to Ambeir', author=orlov_db, publisher=alpha_pub_db)
-        # shadows_of_war = Book(id=uuid4(), name='Shadows of War', author=orlov_db, publisher=alpha_pub_db)
+        sneaking_in_shadow = BookSchemaCreate(name='Sneaking in shadow', author_id=pehov_db.id, publisher_id=alpha_db.id)
+        djanga_with_shadows = BookSchemaCreate(name='Djanga with shadows', author_id=pehov_db.id, publisher_id=alpha_db.id)
 
-        # sneaking_in_shadow = Book(id=uuid4(), name='Sneaking in shadow', author=pehov_db, publisher=alpha_pub_db)
-        # djanga_with_shadows = Book(id=uuid4(), name='Djanga with shadows', author=pehov_db, publisher=alpha_pub_db)
+        repo.add_book(road_to_ambeir)
+        repo.add_book(shadows_of_war)
+        repo.add_book(sneaking_in_shadow)
+        repo.add_book(djanga_with_shadows)
 
-        # session.add_all(
-        #     [
-        #         road_to_ambeir,
-        #         shadows_of_war,
-        #         sneaking_in_shadow,
-        #         djanga_with_shadows,
-        #     ],
-        # )
-        # session.commit()
+        book_count = repo.book_count()
+        assert book_count == 4
 
-        # print('=' * 125)
+        repo.remove_author_by_id(orlov_db.id)
+        repo.remove_author_by_id(pehov_db.id)
 
-        # for book in session.scalars(sa.select(Book).options(joinedload(Book.author), joinedload(Book.publisher))):
-        #     print('^^^^^^^^ loading book....')
-        #     print(book, book.name)
-        #     print(book.author, book.author.name)
-        #     print(book.publisher, book.publisher.name)
+        assert repo.author_count() == 0
+        assert repo.book_count() == 0
 
-        # print('+' * 125)
+        assert repo.publisher_count() == 1
 
-        # for author in session.scalars(sa.select(Author).options(joinedload(Author.books))).unique():
-        #     print('++++++++ loading book....')
-        #     print(author.books)
-
-        # session.delete(orlov_db)
-        # session.commit()
-
-        # print('&' * 125)
-
-        # for author in session.scalars(sa.select(Author).options(selectinload(Author.books))):
-        #     print('&&&&&&&& loading book....')
-        #     print(author.name)
-
-        # for book in session.scalars(sa.select(Book)):
-        #     print('+++&&+++ loading book....')
-        #     print(book)
+        repo.remove_publisher_by_id(alpha_db.id)
+        assert repo.publisher_count() == 0

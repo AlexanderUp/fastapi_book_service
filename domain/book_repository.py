@@ -108,7 +108,6 @@ class SQLBookRepository(AbstractBookRepository):
         book_db: Book = Book(**book.model_dump())
         self._session.add(book_db)
         self._session.commit()
-        self._session.refresh(book_db)
         return book_db
 
     def get_book_list(self) -> list[Book]:
@@ -127,7 +126,6 @@ class SQLBookRepository(AbstractBookRepository):
         author_db: Author = Author(**author.model_dump())
         self._session.add(author_db)
         self._session.commit()
-        self._session.refresh(author_db)
         return author_db
 
     def get_author_list(self) -> list[Author]:
@@ -143,10 +141,9 @@ class SQLBookRepository(AbstractBookRepository):
             self._session.commit()
 
     def add_publisher(self, publisher: PublisherSchema) -> Publisher:
-        publisher_db: Publisher = Book(**publisher.model_dump())
+        publisher_db: Publisher = Publisher(**publisher.model_dump())
         self._session.add(publisher_db)
         self._session.commit()
-        self._session.refresh(publisher_db)
         return publisher_db
 
     def get_publisher_list(self) -> list[Publisher]:
