@@ -1,11 +1,9 @@
-from uuid import uuid4
-
 import sqlalchemy as sa
-from sqlalchemy.orm import Session, selectinload, joinedload
+from sqlalchemy.orm import Session
 
 from domain.book_repository import SQLBookRepository
-from domain.db_tables import Author, Base, Book, Publisher
-from domain.schemas import AuthorSchema, BookSchema, BookSchemaCreate, PublisherSchema
+from domain.db_tables import Base
+from domain.schemas import AuthorSchema, BookSchemaCreate, PublisherSchema
 
 
 if __name__ == '__main__':
