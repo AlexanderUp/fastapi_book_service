@@ -15,6 +15,10 @@ class AuthorSchema(CommonIDNameModelSchema):
         return id(self)
 
 
+class PublisherSchema(CommonIDNameModelSchema):
+    model_config = ConfigDict(from_attributes=True)
+
+
 class BookSchema(CommonIDNameModelSchema):
     model_config = ConfigDict(from_attributes=True)
 
@@ -26,8 +30,3 @@ class BookSchemaCreate(CommonIDNameModelSchema):
     author_id: uuid.UUID
     publisher_id: uuid.UUID
 
-
-class PublisherSchema(CommonIDNameModelSchema):
-    model_config = ConfigDict(from_attributes=True)
-
-    books: list[BookSchema] = Field(default=[])

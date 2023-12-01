@@ -58,6 +58,12 @@ class AbstractBookRepository(ABC):
     def book_count() -> int:
         pass
 
+    def author_count() -> int:
+        pass
+
+    def publisher_count() -> int:
+        pass
+
 
 class FakeBookRepository(AbstractBookRepository):
     def __init__(self):

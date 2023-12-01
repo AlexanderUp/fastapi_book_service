@@ -1,21 +1,16 @@
 from fastapi import FastAPI
 
+from database import SessionLocal
 from domain.book_service import BookService
-from domain.book_repository import FakeBookRepository
-from domain.schemas import AuthorSchema, BookSchema, PublisherSchema
+from domain.book_repository import SQLBookRepository
+from domain.schemas import AuthorSchema, BookSchema, BookSchemaCreate, PublisherSchema
 
 app = FastAPI()
 
-book_repository = FakeBookRepository()
+session = SessionLocal()
+
+book_repository = SQLBookRepository(session)
 book_service = BookService(book_repository)
-
-orlov = AuthorSchema(name='Orlov')
-
-road_to_ambeir = BookSchema(name='Road to Ambeir', author=orlov)
-shadows_of_war = BookSchema(name='Shadows of War', author=orlov)
-
-book_service.add_book(road_to_ambeir)
-book_service.add_book(shadows_of_war)
 
 
 @app.get('/books', response_model=list[BookSchema])
@@ -24,7 +19,7 @@ async def list_books():
 
 
 @app.post('/books', response_model=BookSchema)
-async def add_book(book: BookSchema):
+async def add_book(book: BookSchemaCreate):
     return book_service.add_book(book)
 
 
@@ -35,14 +30,14 @@ async def list_authors():
 
 @app.post('/authors', response_model=AuthorSchema)
 async def add_author(author: AuthorSchema):
-    return {}
+    return book_service.add_author(author)
 
 
 @app.get('/publishers', response_model=list[PublisherSchema])
 async def list_publishers():
-    return {}
+    return book_service.list_publishers()
 
 
 @app.post('/publishers', response_model=PublisherSchema)
 async def add_publisher(publisher: PublisherSchema):
-    return {}
+    return book_service.add_publisher(publisher)
