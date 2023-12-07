@@ -2,11 +2,9 @@ from uuid import UUID
 
 import sqlalchemy as sa
 
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-
-class Base(DeclarativeBase):
-    pass
+from database import Base
 
 
 class Author(Base):
