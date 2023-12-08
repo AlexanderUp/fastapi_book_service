@@ -5,16 +5,6 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
 
-fake_users_db = {
-    'johndoe': {
-        'username': 'johndoe',
-        'full_name': 'John Doe',
-        'email': 'johndoe@example.com',
-        'hashed_password': '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW',
-        'disabled': False,
-    }
-}
-
 
 class UserDB(Base):
     __tablename__ = 'users'

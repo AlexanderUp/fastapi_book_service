@@ -22,6 +22,13 @@ async def list_users(session: Session = Depends(get_db_session)):
     return session.scalars(select(UserDB))
 
 
+@router.get('/me', response_model=UserSchema)
+async def read_users_me(
+    current_user: Annotated[UserSchema, Depends(get_current_active_user)]
+):
+    return current_user
+
+
 @router.get('/{user_id}', response_model=UserSchema)
 async def get_user_by_id(user_id: UUID, session: Session = Depends(get_db_session)):
     user = session.get(UserDB, user_id)
@@ -32,7 +39,7 @@ async def get_user_by_id(user_id: UUID, session: Session = Depends(get_db_sessio
 async def create_user(
     user_schema: UserSchemaCreate, session: Session = Depends(get_db_session),
 ):
-    password_hash = get_password_hash(user_schema.password1)
+    password_hash = get_password_hash(user_schema.password)
     user = UserDB(
         id=user_schema.id,
         username=user_schema.username,
@@ -48,14 +55,9 @@ async def create_user(
 
 
 @router.delete('/{user_id}')
-async def remove_user_by_id(user_id: UUID, session: Session = Depends(get_db_session)) -> None:
+async def remove_user_by_id(
+    user_id: UUID, session: Session = Depends(get_db_session),
+) -> None:
     user = session.get(UserDB, user_id)
     session.delete(user)
     session.commit()
-
-
-@router.get('/me', response_model=UserSchema)
-async def read_users_me(
-    current_user: Annotated[UserSchema, Depends(get_current_active_user)]
-):
-    return current_user

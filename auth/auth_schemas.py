@@ -1,7 +1,7 @@
 import uuid
 from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, constr, EmailStr, Field, model_validator, ValidationError
+from pydantic import BaseModel, ConfigDict, constr, EmailStr, Field
 
 
 class TokenSchema(BaseModel):
@@ -35,14 +35,4 @@ class UserSchemaCreate(BaseModel):
     email: Annotated[EmailStr, Field(max_length=50)]
     first_name: constr(max_length=50) | None = None
     last_name: constr(max_length=50) | None = None
-    password1: str
-    password2: str
-
-    @model_validator(mode='after')
-    def check_password_match(self) -> 'UserSchemaCreate':
-        pw1 = self.password1
-        pw2 = self.password2
-
-        if pw1 is not None and pw2 is not None and pw1 != pw2:
-            raise ValidationError('Passwords do not match')
-        return self
+    password: str
