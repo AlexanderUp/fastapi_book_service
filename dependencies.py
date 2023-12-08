@@ -12,3 +12,12 @@ def get_service():
         yield book_service
     finally:
         session.close()
+
+
+def get_db_session():
+    session = SessionLocal()
+    
+    try:
+        yield session
+    finally:
+        session.close()
