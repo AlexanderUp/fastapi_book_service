@@ -9,7 +9,7 @@ from .auth_dependencies import get_password_hash
 
 
 def add_user(session: Session, user_schema: UserSchemaCreate) -> UserDB:
-    password_hash = get_password_hash(user_schema.password1)
+    password_hash = get_password_hash(user_schema.password)
     user = UserDB(
         id=user_schema.id,
         username=user_schema.username,

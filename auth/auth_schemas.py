@@ -13,13 +13,23 @@ class TokenDataSchema(BaseModel):
     username: str | None = None
 
 
-class UserSchema(BaseModel):
+class UserSchemaInputUpdate(BaseModel):
+    first_name: constr(max_length=50) | None = None
+    last_name: constr(max_length=50) | None = None
+
+
+class UserShemaInput(UserSchemaInputUpdate):
+    username: constr(max_length=50)
+    email: Annotated[EmailStr, Field(max_length=50)]
+
+
+class BaseUserSchema(UserShemaInput):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4)
+
+
+class UserSchema(BaseUserSchema):
     model_config = ConfigDict(from_attributes=True)
 
-    id: uuid.UUID
-    username: str
-    email: str | None = None
-    full_name: str | None = None
     disabled: bool | None = None
 
 
@@ -29,10 +39,5 @@ class UserSchemaDB(UserSchema):
     password_hash: str
 
 
-class UserSchemaCreate(BaseModel):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4)
-    username: constr(max_length=50)
-    email: Annotated[EmailStr, Field(max_length=50)]
-    first_name: constr(max_length=50) | None = None
-    last_name: constr(max_length=50) | None = None
+class UserSchemaCreate(UserShemaInput):
     password: str
