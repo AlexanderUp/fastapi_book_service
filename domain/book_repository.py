@@ -10,10 +10,6 @@ from .schemas import AuthorSchema, BookSchema, PublisherSchema
 class AbstractBookRepository(ABC):
 
     @abstractmethod
-    def __init__(self) -> None:
-        pass
-
-    @abstractmethod
     def add_book(self, book: BookSchema) -> BookSchema:
         pass
 
@@ -105,8 +101,7 @@ class FakeBookRepository(AbstractBookRepository):
         return book in self._books
 
 
-class SQLBookRepository(AbstractBookRepository):
-
+class SQLAlchemyBookRepository(AbstractBookRepository):
     def __init__(self, session) -> None:
         self._session = session
 
