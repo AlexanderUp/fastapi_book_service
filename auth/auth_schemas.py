@@ -39,5 +39,5 @@ class UserSchemaDB(UserSchema):
     password_hash: str
 
 
-class UserSchemaCreate(UserShemaInput):
+class UserSchemaCreate(BaseUserSchema):
     password: str

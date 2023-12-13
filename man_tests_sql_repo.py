@@ -1,7 +1,7 @@
 import sqlalchemy as sa
 from sqlalchemy.orm import Session
 
-from domain.book_repository import SQLBookRepository
+from domain.book_repository import SQLAlchemyBookRepository
 from domain.db_tables import Base
 from domain.schemas import AuthorSchema, BookSchemaCreate, PublisherSchema
 
@@ -14,7 +14,7 @@ if __name__ == '__main__':
     Base.metadata.create_all(engine)
 
     with Session(engine) as session:
-        repo = SQLBookRepository(session)
+        repo = SQLAlchemyBookRepository(session)
 
         orlov = AuthorSchema(name='Orlov')
         pehov = AuthorSchema(name='Pehov')

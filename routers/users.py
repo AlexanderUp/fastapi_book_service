@@ -2,13 +2,11 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
-from sqlalchemy.orm import Session
 
-from auth.auth_crud import add_user, list_users, get_user_by_id, remove_user_by_id
-from auth.auth_db_tables import UserDB
-from auth.auth_dependencies import get_current_active_user, get_db_session, get_password_hash
-from auth.auth_schemas import UserSchema, UserShemaInput, UserSchemaInputUpdate, UserSchemaCreate
+from auth.auth_dependencies import get_current_active_user
+from auth.auth_schemas import UserSchema, UserSchemaInputUpdate, UserSchemaCreate
+from auth.auth_service import UserService
+from dependencies import get_user_service
 
 router = APIRouter(
     prefix='/users',
@@ -18,8 +16,8 @@ router = APIRouter(
 
 
 @router.get('/', response_model=list[UserSchema])
-async def list_users(session: Session = Depends(get_db_session)):
-    return session.scalars(select(UserDB))
+async def list_users(user_service: UserService = Depends(get_user_service)):
+    return user_service.list_users()
 
 
 @router.get('/me', response_model=UserSchema)
@@ -31,43 +29,30 @@ async def read_users_me(
 
 @router.put('/me', response_model=UserSchema)
 async def read_users_me(
-    user_input: UserSchemaInputUpdate,
+    user_input_chema: UserSchemaInputUpdate,
     current_user: Annotated[UserSchema, Depends(get_current_active_user)],
-    session: Session = Depends(get_db_session),
+    user_service: UserService = Depends(get_user_service),
 ):
-    current_user_db = session.get(UserDB, current_user.id)
-    user_data_dict = user_input.model_dump(exclude_unset=True)
-
-    for key, value in user_data_dict.items():
-        setattr(current_user_db, key, value)
-
-    session.add(current_user_db)
-    session.commit()
-    session.refresh(current_user_db)
-    return current_user_db
+    return user_service.update_user_by_id(
+        user_id=current_user.id, user_input_schema=user_input_chema,
+    )
 
 
 @router.patch('/me', response_model=UserSchema)
 async def read_users_me(
-    user_input: UserSchemaInputUpdate,
+    user_input_schema: UserSchemaInputUpdate,
     current_user: Annotated[UserSchema, Depends(get_current_active_user)],
-    session: Session = Depends(get_db_session),
+    user_service: UserService = Depends(get_user_service),
 ):
-    current_user_db = session.get(UserDB, current_user.id)
-    user_data_dict = user_input.model_dump(exclude_unset=True)
-
-    for key, value in user_data_dict.items():
-        setattr(current_user_db, key, value)
-
-    session.add(current_user_db)
-    session.commit()
-    session.refresh(current_user_db)
-    return current_user_db
+    return user_service.update_user_by_id(
+        user_id=current_user.id, user_input_schema=user_input_schema,
+    )
 
 
 @router.get('/{user_id}', response_model=UserSchema)
-async def get_user_by_id(user_id: uuid.UUID, session: Session = Depends(get_db_session)):
-    user = session.get(UserDB, user_id)
+async def get_user_by_id(user_id: uuid.UUID, user_service: UserService = Depends(get_user_service),
+):
+    user = user_service.get_user_by_id(user_id)
     if not user:
         raise HTTPException(status_code=404, detail='User not found')
     return user
@@ -75,29 +60,16 @@ async def get_user_by_id(user_id: uuid.UUID, session: Session = Depends(get_db_s
 
 @router.post('/', response_model=UserSchema)
 async def create_user(
-    user_schema: UserSchemaCreate, session: Session = Depends(get_db_session),
+    user_schema: UserSchemaCreate,
+    user_service: UserService = Depends(get_user_service),
+
 ):
-    password_hash = get_password_hash(user_schema.password)
-    user = UserDB(
-        id=uuid.uuid4(),
-        username=user_schema.username,
-        email=user_schema.email,
-        first_name=user_schema.first_name,
-        last_name=user_schema.last_name,
-        password_hash=password_hash,
-    )
-    session.add(user)
-    session.commit()
-    session.refresh(user)
-    return user
+    return user_service.add_user(user_schema)
 
 
 @router.delete('/{user_id}')
 async def remove_user_by_id(
-    user_id: uuid.UUID, session: Session = Depends(get_db_session),
+    user_id: uuid.UUID, user_service: UserService = Depends(get_user_service),
+
 ) -> None:
-    user = session.get(UserDB, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail='User not found')
-    session.delete(user)
-    session.commit()
+    return user_service.delete_user_by_id(user_id)

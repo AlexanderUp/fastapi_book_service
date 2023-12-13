@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from .auth_db_tables import UserDB
 from .auth_schemas import UserSchemaCreate
-from .auth_dependencies import get_password_hash
+from .auth_password_utils import get_password_hash
 
 
 def add_user(session: Session, user_schema: UserSchemaCreate) -> UserDB:
@@ -37,3 +37,16 @@ def remove_user_by_id(session: Session, user_id: UUID) -> None:
     user = get_user_by_id(session, user_id)
     session.delete(user)
     session.commit()
+
+
+def update_user(user_input, current_user, session):
+    current_user_db = session.get(UserDB, current_user.id)
+    user_data_dict = user_input.model_dump(exclude_unset=True)
+
+    for key, value in user_data_dict.items():
+        setattr(current_user_db, key, value)
+
+    session.add(current_user_db)
+    session.commit()
+    session.refresh(current_user_db)
+    return current_user_db
